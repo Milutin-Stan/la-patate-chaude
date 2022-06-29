@@ -3,6 +3,7 @@ use std::net::TcpStream;
 use std::io::Read;
 use serde_json::{Result, Value};
 use std::str;
+use std::str::from_utf8;
 
 fn main() {
 
@@ -16,17 +17,28 @@ fn main() {
 }
 
 fn handle_connection(mut stream: TcpStream) {
+    let mut data = [0 as u8; 4];
+    match stream.read_exact(&mut data) {
+        Ok(_) => {
 
-    let mut buffer = [0; 1024];
+            let first: u32 = u32::from_be_bytes(data.try_into().unwrap());
+            println!("First: {}", first);
+            let mut body = vec![0; first as usize];
+            match stream.read_exact(&mut body) {
+                Ok(_) => {
+                    let response = from_utf8(&body).unwrap();
+                    println!("response: {}", response);
+                },
+                Err(e) => {
+                    println!("Failed to receive data: {}", e);
+                }
+            }
 
-    stream.read(&mut buffer).unwrap();
-
-    println!("Value JSON {}", String::from_utf8_lossy(&buffer[..]));
-
-    stream.read(&mut buffer).unwrap();
-
-    println!("Value JSON {}", String::from_utf8_lossy(&buffer[..]));
-
+        },
+        Err(e) => {
+            println!("Failed to receive data: {}", e);
+        }
+    }
 }
 
 //let t = str::from_utf8(&buffer[137..153]).unwrap();
