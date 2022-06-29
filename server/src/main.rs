@@ -1,6 +1,8 @@
 use std::net::TcpListener;
 use std::net::TcpStream;
 use std::io::Read;
+use serde_json::{Result, Value};
+use std::str;
 
 fn main() {
 
@@ -9,7 +11,7 @@ fn main() {
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
-        handle_connection(stream);
+        let _test = handle_connection(stream);
     }
 }
 
@@ -19,8 +21,18 @@ fn handle_connection(mut stream: TcpStream) {
 
     stream.read(&mut buffer).unwrap();
 
-    println!(
-        "Test: {}",
-        String::from_utf8_lossy(&buffer[135..])
-    );
+    println!("Value JSON {}", String::from_utf8_lossy(&buffer[..]));
+
+    stream.read(&mut buffer).unwrap();
+
+    println!("Value JSON {}", String::from_utf8_lossy(&buffer[..]));
+
 }
+
+//let t = str::from_utf8(&buffer[137..153]).unwrap();
+//println!("t from buffer {}", t);
+//let data = r#"{"test": "test"}"#;
+//println!("data from local {}", data);
+//let v: Value = serde_json::from_str(t)?;
+
+//println!("Test: {}", String::from_utf8_lossy(&buffer[135..]));
