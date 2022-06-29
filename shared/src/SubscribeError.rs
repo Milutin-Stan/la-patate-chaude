@@ -1,0 +1,3 @@
+struct SubscribeError {
+    AlreadyRegistered, InvalidName
+}
