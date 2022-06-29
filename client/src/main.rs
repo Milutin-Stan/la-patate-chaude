@@ -7,7 +7,8 @@ fn main() {
         Ok(mut stream) => {
             println!("Connected to server in port 7878");
 
-            let text = "{\"Subscribe\":{\"name\":\"free_patato\"}}";
+            //let text = "{\"Subscribe\":{\"name\":\"free_patato\"}}";
+            let text = "\"Hello\"";
             let json = serde_json::to_string(&text).unwrap();
 
             println!("Send Request: {}", json.to_string());
@@ -20,9 +21,19 @@ fn main() {
             let mut data = [0 as u8; 4];
             match stream.read_exact(&mut data) {
                 Ok(_) => {
-                    println!(from_utf8(&data) as u32)
-                    let text = from_utf8(&data).unwrap();
-                    println!("reply: {}", text);
+
+                    let first: u32 = u32::from_be_bytes(data.try_into().unwrap());
+                    println!("First: {}", first);
+                    let mut body = vec![0; first as usize];
+                    match stream.read_exact(&mut body) {
+                        Ok(_) => {
+                            let response = from_utf8(&body).unwrap();
+                            println!("response: {}", response);
+                        },
+                        Err(e) => {
+                            println!("Failed to receive data: {}", e);
+                        }
+                    }
 
                 },
                 Err(e) => {
